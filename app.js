@@ -12,11 +12,12 @@ $(document).ready(function() {
 
 
   // Get frequency data and visualise it
-  var freqData = new Uint8Array(400);
+  var freqData = new Uint8Array(50);
+  var freqDataOne = new Uint8Array(1);
 
   var svgHeight = $(window).height();
   var svgWidth = $(window).width();//'1200';
-  var barPadding = 0;
+  var barPadding = 1;
 
   function createSvg(parent, height, width) {
     return d3.select(parent).append('svg').attr('height', height).attr('width', width);
@@ -41,19 +42,28 @@ $(document).ready(function() {
 
     // Copy frequency data to freqData array
     analyser.getByteFrequencyData(freqData);
+    analyser.getByteFrequencyData(freqDataOne);
 
     // Update d3 graph with new data
     svg.selectAll('rect')
       .data(freqData)
       .attr('y', function(d) {
-        return svgHeight-d;
+        return svgHeight-3*d;
       })
       .attr('height', function(d) {
-        return 10*d;
+        return 3*d;
       })
       .attr('fill', function(d) {
-        return 'rgb(' + 0 + ', ' + 0 + ', ' + (2*d) + ')';
+        return 'rgb(' + d + ', ' + 0 + ', ' + d + ')';
       });
+
+    d3.select('body')
+      .data(freqDataOne)
+      .style('background-color', function(d) {
+        var value = d*0.2;
+        return 'rgb(' + value + ', ' + value + ', ' + d*0.5 + ')';
+      });
+      //.style("background-color", "black"); 
   }
 
   // Run the loop

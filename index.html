@@ -1,5 +1,17 @@
-<audio id="audioElement" src=./audio/song.mp3></audio>
-<div>
-  <button onclick="document.getElementById('audioElement').play()">Play</button>
-  <button onclick="document.getElementById('audioElement').pause()">Pause</button>
-</div>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Visualiser</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <audio id="audioElement" src=./audio/song.mp3></audio>
+    <div>
+      <button onclick="document.getElementById('audioElement').play()">Play</button>
+      <button onclick="document.getElementById('audioElement').pause()">Pause</button>
+    </div>
+    <script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

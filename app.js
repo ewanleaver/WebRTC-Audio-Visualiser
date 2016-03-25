@@ -1,22 +1,45 @@
 $(document).ready(function() {
 
-  var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  var audioElement = document.getElementById('audioElement');
-  var audioSource = audioContext.createMediaElementSource(audioElement);
-  // Used to retrieve frequency data
-  var analyser = audioContext.createAnalyser();
+  // Shim the prefixes
+  navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia ||
+                         navigator.webkitGetUserMedia || navigator.msGetUserMedia;
 
-  // Bind our analyser to the media element source
-  audioSource.connect(analyser);
-  audioSource.connect(audioContext.destination);
+  var mediaConstraints = {
+    video: false,
+    audio: true
+  };
 
+  // Get audio stream
+  navigator.getUserMedia(mediaConstraints, getUserMediaSuccess, getUserMediaError);
+
+  var audioContext;
+  var audioSource;
+  var analyser;
+
+  function getUserMediaSuccess(stream) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    audioSource = audioContext.createMediaStreamSource(stream);
+    // Used to retrieve frequency data
+    analyser = audioContext.createAnalyser();
+
+    // Bind our analyser to the media element source
+    audioSource.connect(analyser);
+    audioSource.connect(audioContext.destination);
+
+    // Run the loop
+    render();
+  }
+
+  function getUserMediaError(error) {
+    console.log('errorだよ');
+  }
 
   // Get frequency data and visualise it
-  var freqData = new Uint8Array(50);
+  var freqData = new Uint8Array(100);
   var freqDataOne = new Uint8Array(1);
 
   var svgHeight = $(window).height();
-  var svgWidth = $(window).width();//'1200';
+  var svgWidth = $(window).width();
   var barPadding = 1;
 
   function createSvg(parent, height, width) {
@@ -48,13 +71,13 @@ $(document).ready(function() {
     svg.selectAll('rect')
       .data(freqData)
       .attr('y', function(d) {
-        return svgHeight-3*d;
+        return svgHeight/2-1.75*d;
       })
       .attr('height', function(d) {
-        return 3*d;
+        return 3.5*d;
       })
       .attr('fill', function(d) {
-        return 'rgb(' + d + ', ' + 0 + ', ' + d + ')';
+        return 'rgb(' + d + ', ' + 0 + ', ' + 0 + ')';
       });
 
     d3.select('body')
@@ -66,6 +89,4 @@ $(document).ready(function() {
       //.style("background-color", "black"); 
   }
 
-  // Run the loop
-  render();
 });

@@ -19,7 +19,6 @@ $(document).ready(function() {
     call.answer(window.localStream);
     setRemoteStream(call);
 
-    connected = true;
     $('.call-ui').hide();
   });
 
@@ -49,6 +48,9 @@ $(document).ready(function() {
       // Bind our localAnalyser to the media element source
       remoteAudioSource.connect(remoteAnalyser);
       remoteAudioSource.connect(remoteAudioContext.destination);
+
+      connected = true;
+      localShift = 0;
     });
   }
 
@@ -126,6 +128,8 @@ $(document).ready(function() {
     })
     .attr('width', svgWidth / remoteFreqData.length - barPadding);
 
+  var localShift = 2;
+
   // Continuously loop and update with frequency data
   function render() {
     requestAnimationFrame(render);
@@ -137,10 +141,10 @@ $(document).ready(function() {
     localSvg.selectAll('rect')
       .data(localFreqData)
       .attr('y', function(d) {
-        return svgHeight/2;
+        return svgHeight/2 - localShift*d;
       })
       .attr('height', function(d) {
-        return 2*d;
+        return 2*d + localShift*d;
       })
       .attr('fill', function(d) {
         return 'rgb(' + d + ', ' + 0 + ', ' + 0 + ')';

@@ -8,6 +8,7 @@ $(document).ready(function() {
     key: '8f4f7ea3-6341-483a-8ab1-f36865df0299',
     debug: 3
   });
+  var connected = false;
 
   peer.on('open', function(){
     $('#my-id').text(peer.id);
@@ -16,9 +17,9 @@ $(document).ready(function() {
   // Receiving a call
   peer.on('call', function(call) {
     call.answer(window.localStream);
-    call.on('stream', function(stream){
-      $('#remoteAudio').prop('src', URL.createObjectURL(stream));
-    });
+    setRemoteStream(call);
+
+    connected = true;
     $('.call-ui').hide();
   });
 
@@ -31,8 +32,25 @@ $(document).ready(function() {
     $('#make-call').click(function(){
       // Initiate a call!
       var call = peer.call($('#input-id').val(), window.localStream);
+      setRemoteStream(call);
     });
   });
+
+  function setRemoteStream(call) {
+    call.on('stream', function(stream){
+      console.log("Got remote stream!");
+      $('#remoteAudio').prop('src', URL.createObjectURL(stream));
+    
+      remoteAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+      remoteAudioSource = remoteAudioContext.createMediaStreamSource(stream);
+      // Used to retrieve frequency data
+      remoteAnalyser = remoteAudioContext.createAnalyser();
+
+      // Bind our localAnalyser to the media element source
+      remoteAudioSource.connect(remoteAnalyser);
+      remoteAudioSource.connect(remoteAudioContext.destination);
+    });
+  }
 
   var mediaConstraints = {
     video: false,
@@ -45,10 +63,13 @@ $(document).ready(function() {
   var localAudioContext;
   var localAudioSource;
   var localAnalyser;
+  var remoteAudioContext;
+  var remoteAudioSource;
+  var remoteAnalyser;
 
   function getUserMediaSuccess(stream) {
     window.localStream = stream;
-    $('#localAudio').prop('src', URL.createObjectURL(stream));
+    $('#audioLocal').prop('src', URL.createObjectURL(stream));
 
     localAudioContext = new (window.AudioContext || window.webkitAudioContext)();
     localAudioSource = localAudioContext.createMediaStreamSource(stream);
@@ -70,8 +91,9 @@ $(document).ready(function() {
   // Get frequency data and visualise it
   var freqBars = 100;
   var localFreqData = new Uint8Array(freqBars);
-  var remoteFreqData = new Uint8Array(freqBars);
   var localFreqDataOne = new Uint8Array(1);
+  var remoteFreqData = new Uint8Array(freqBars);
+  var dummyData = [100];
 
   var svgHeight = $(window).height();
   var svgWidth = $(window).width();
@@ -95,15 +117,23 @@ $(document).ready(function() {
     })
     .attr('width', svgWidth / localFreqData.length - barPadding);
 
+  remoteSvg.selectAll('rect')
+    .data(remoteFreqData)
+    .enter()
+    .append('rect')
+    .attr('x', function(d, i) {
+      return i * (svgWidth / remoteFreqData.length);
+    })
+    .attr('width', svgWidth / remoteFreqData.length - barPadding);
+
   // Continuously loop and update with frequency data
   function render() {
     requestAnimationFrame(render);
 
-    // Copy frequency data to localFreqData array
+    // Copy frequency data to freqData arrays and update local graph
     localAnalyser.getByteFrequencyData(localFreqData);
     localAnalyser.getByteFrequencyData(localFreqDataOne);
 
-    // Update local d3 graph with new data
     localSvg.selectAll('rect')
       .data(localFreqData)
       .attr('y', function(d) {
@@ -115,6 +145,25 @@ $(document).ready(function() {
       .attr('fill', function(d) {
         return 'rgb(' + d + ', ' + 0 + ', ' + 0 + ')';
       });
+
+    if (connected) {
+      console.log("Updating remote graph");
+      // Update remote graph with new data (if we are connected)
+      remoteAnalyser.getByteFrequencyData(remoteFreqData);
+
+      remoteSvg.selectAll('rect')
+        .data(localFreqData)
+        .attr('y', function(d) {
+          console.log(d);
+          return svgHeight/2 - 2*d;
+        })
+        .attr('height', function(d) {
+          return 2*d;
+        })
+        .attr('fill', function(d) {
+          return 'rgb(' + 0 + ', ' + 200 + ', ' + d + ')';
+        });
+    }
 
     d3.select('body')
       .data(localFreqDataOne)

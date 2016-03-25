@@ -1,3 +1,4 @@
 audio/
 
 *.swp
+.DS_Store

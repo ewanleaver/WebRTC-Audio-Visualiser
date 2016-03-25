@@ -81,7 +81,7 @@ $(document).ready(function() {
 
   function getUserMediaSuccess(stream) {
     window.localStream = stream;
-    $('#audioLocal').prop('src', URL.createObjectURL(stream));
+    $('#localAudio').prop('src', URL.createObjectURL(stream));
 
     localAudioContext = new (window.AudioContext || window.webkitAudioContext)();
     localAudioSource = localAudioContext.createMediaStreamSource(stream);
@@ -90,7 +90,7 @@ $(document).ready(function() {
 
     // Bind our localAnalyser to the media element source
     localAudioSource.connect(localAnalyser);
-    localAudioSource.connect(localAudioContext.destination);
+    //localAudioSource.connect(localAudioContext.destination);
 
     // Run the loop
     render();
@@ -166,7 +166,7 @@ $(document).ready(function() {
       remoteAnalyser.getByteFrequencyData(remoteFreqData);
 
       remoteSvg.selectAll('rect')
-        .data(localFreqData)
+        .data(remoteFreqData)
         .attr('y', function(d) {
           console.log(d);
           return svgHeight/2 - 2*d;

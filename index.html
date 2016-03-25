@@ -6,8 +6,15 @@
   </head>
 
   <body>
+    <audio id="audioLocal" autoplay></audio>
+    <audio id="audioRemote" autoplay></audio>
+    <span id="my-id" class="call-ui">...</span>
+    <input type="text" placeholder="Call..." id="input-id" class="call-ui">
+    <button id="make-call" class="call-ui">Call</button>
+
     <script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="https://skyway.io/dist/0.3/peer.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

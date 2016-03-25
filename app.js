@@ -4,7 +4,17 @@ $(document).ready(function() {
   navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia ||
                          navigator.webkitGetUserMedia || navigator.msGetUserMedia;
 
-  var peer = new Peer({
+  function randomId() {
+    var text = "";
+    var possible = "0123456789";
+
+    for (var i = 0; i < 4; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+  }
+
+  var peer = new Peer(randomId(), {
     key: '8f4f7ea3-6341-483a-8ab1-f36865df0299',
     debug: 3
   });

@@ -68,18 +68,21 @@ $(document).ready(function() {
   }
 
   // Get frequency data and visualise it
-  var localFreqData = new Uint8Array(100);
+  var freqBars = 100;
+  var localFreqData = new Uint8Array(freqBars);
+  var remoteFreqData = new Uint8Array(freqBars);
   var localFreqDataOne = new Uint8Array(1);
 
-  var localSvgHeight = $(window).height();
-  var localSvgWidth = $(window).width();
+  var svgHeight = $(window).height();
+  var svgWidth = $(window).width();
   var barPadding = 1;
 
   function createSvg(parent, height, width) {
-    return d3.select(parent).append('localSvg').attr('height', height).attr('width', width);
+    return d3.select(parent).append('svg').attr('height', height).attr('width', width);
   }
 
-  var localSvg = createSvg('body', localSvgHeight, localSvgWidth);
+  var localSvg = createSvg('body', svgHeight, svgWidth);
+  var remoteSvg = createSvg('body', svgHeight, svgWidth);
 
   // Create our initial graph visualisation
   // We don't care about height and y attributes until music starts playing
@@ -88,9 +91,9 @@ $(document).ready(function() {
     .enter()
     .append('rect')
     .attr('x', function(d, i) {
-      return i * (localSvgWidth / localFreqData.length);
+      return i * (svgWidth / localFreqData.length);
     })
-    .attr('width', localSvgWidth / localFreqData.length - barPadding);
+    .attr('width', svgWidth / localFreqData.length - barPadding);
 
   // Continuously loop and update with frequency data
   function render() {
@@ -104,10 +107,10 @@ $(document).ready(function() {
     localSvg.selectAll('rect')
       .data(localFreqData)
       .attr('y', function(d) {
-        return localSvgHeight/2-1.75*d;
+        return svgHeight/2;
       })
       .attr('height', function(d) {
-        return 3.5*d;
+        return 2*d;
       })
       .attr('fill', function(d) {
         return 'rgb(' + d + ', ' + 0 + ', ' + 0 + ')';

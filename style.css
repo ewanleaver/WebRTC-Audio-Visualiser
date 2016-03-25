@@ -1,0 +1,24 @@
+#input-id {
+  margin-left: 10px;
+
+  background-color: rgba(0,0,0,0);
+  border-style: solid;
+  border-color: white;
+  border-radius: 5px;
+}
+
+.call-ui {
+  font-family: 'Open Sans';
+  color: white;
+}
+
+#make-call {
+  color: black;
+}
+
+svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
